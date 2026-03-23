@@ -23,55 +23,88 @@ ScalarConverter::~ScalarConverter()
 static void	ScalarConverter::convert(std::string value)
 {
 	std::string	resc;
-	std::string	resi;
-	std::string	resf;
-	std::string	resd;
-	int			cflag = 0;
-	int			iflag = 0;
-	int			fflag = 0;
-	int			dflag = 0;
+	int			resi;
+	float		resf;
+	double		resd;
+	int			errflag;
+	int			flag;
 
-	for(int i = 0; value[i] != '\0'; i++)
+	if (value.len() >= 1)
 	{
-		if (value.len() >= 1)
+		errflag = IMPOSSIBLE;
+		int	type = My_IsNum(value);
+		if (type == INT)
 		{
-			cflag = 2;
-			int	numres = my_isnum(value);
-			if (numres == 0)//int
-			{
-				iflag = 1;
-			}
-			else if (numres == 2)
-			{
-				dflag = 1;
-			}
-			else if (numres == 3)
-			{
-				fflag = 1;
-			}
+			flag = INT;
+			resi = value;
+			resf = static_cast<float>(value);
+			resd = static_cast<double>(value);
 		}
-		else if (value.len() == 1)
+		else if (type == DOUBLE)
 		{
-			if (my_ischar(value))
-				cflag = 1;
+			flag = DOUBLE;
+			resd = value;
+			resi = static_cast<int>(value);
+			resf = static_cast<float>(value);
+		}
+		else if (type == FLOAT)
+		{
+			flag = FLOAT;
+			resf = value;
+			resi = static_cast<int>(value);
+			resd = static_cast<double>(value);
 		}
 	}
-	if (cflag == 0)
+	else if (value.len() == 1)
+	{
+		if (My_IsChar(value))
+		{
+			flag = CHAR;
+			errflag = OK;
+			resc = value;
+			resi = static_cast<int>(value);
+			resf = static_cast<float>(value);
+			resd = static_cast<double>(value);
+		}
+	}
+	if (type == INT || type == DOUBLE || type == FLOAT)
+	{
+		int chartype = NumToChar(resi);
+		if (chartype == ERROR)
+			errflag = ERROR;
+		else if (chartype == IMPOSSIBLE)
+			errflag = IMPOSSIBLE;
+		else
+		{
+			errflag = OK;
+			resc = static_cast<std::string>(resi);
+		}
+	}
+	if (errflag == ERROR)
 	{
 		resc = "Non displayable";
 	}
-	else if (cflag == 2)
+	else if (errflag == IMPOSSIBLE)
 	{
 		resc = "Impossible";
 	}
-
 	std::cout << "char: " << resc << std::endl;
 	std::cout << "int: " << resi << std::endl;
 	std::cout << "float: " << resf << std::endl;
 	std::cout << "double: " << resd << std::endl;
 }
 
-static bool	my_ischar(std::string s)
+int		NumToChar(int num)
+{
+	if (num <= 47 || num == 127)
+		return (ERROR);
+	else if (num > 127)
+		return (IMPOSSIBLE);
+	else
+		return (OK);
+}
+
+bool	My_IsChar(std::string s)
 {
 	for (int i = 0; s[i] != '\0'; i++)
 	{
@@ -89,7 +122,7 @@ static bool	my_ischar(std::string s)
 	return (true);
 }
 
-static int	my_isnum(std::string s)
+int	My_IsNum(std::string s)
 {
 	int	dotflag = 0;
 	for (int i = 0; s[i] != '\0'; i++)
@@ -112,13 +145,13 @@ static int	my_isnum(std::string s)
 		}
 	}
 	if (noflag)
-		return (1);
+		return (ERROR);
 	else if (iflag && dotflag == 1 && !fflag)
-		return (2);
+		return (DOUBLE);
 	else if (iflag && dotflag == 0 && !fflag)
-		return  (0);
+		return  (INT);
 	else if (iflag && dotflag == 1 && fflag)
-		return (3);
+		return (FLOAT);
 	else
-		return (1);
+		return (ERROR);
 }
