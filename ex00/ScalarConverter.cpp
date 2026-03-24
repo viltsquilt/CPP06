@@ -7,12 +7,13 @@ ScalarConverter::ScalarConverter()
 
 ScalarConverter(const ScalarConverter& orig)
 {
-
+	(void)orig;
 }
 
 ScalarConverter&	ScalarConverter::operator=(const ScalarConverter& orig)
 {
-
+	(void)orig;
+	return (*this);
 }
 
 ScalarConverter::~ScalarConverter()
@@ -26,33 +27,33 @@ static void	ScalarConverter::convert(std::string value)
 	int			resi;
 	float		resf;
 	double		resd;
-	int			errflag;
-	int			flag;
+	valueType	errflag;
+	valueType	flag;
 
 	if (value.len() >= 1)
 	{
 		errflag = IMPOSSIBLE;
-		int	type = My_IsNum(value);
+		valueType	type = My_IsNum(value);
 		if (type == INT)
 		{
 			flag = INT;
-			resi = value;
-			resf = static_cast<float>(value);
-			resd = static_cast<double>(value);
+			resi = std::stoi(value);
+			resf = static_cast<float>(resi);
+			resd = static_cast<double>(resi);
 		}
 		else if (type == DOUBLE)
 		{
 			flag = DOUBLE;
-			resd = value;
-			resi = static_cast<int>(value);
-			resf = static_cast<float>(value);
+			resd = std::stod(value);
+			resi = static_cast<int>(resd);
+			resf = static_cast<float>(resd);
 		}
 		else if (type == FLOAT)
 		{
 			flag = FLOAT;
-			resf = value;
-			resi = static_cast<int>(value);
-			resd = static_cast<double>(value);
+			resf = std::stod(value);
+			resi = static_cast<int>(resf);
+			resd = static_cast<double>(resf);
 		}
 	}
 	else if (value.len() == 1)
@@ -62,14 +63,14 @@ static void	ScalarConverter::convert(std::string value)
 			flag = CHAR;
 			errflag = OK;
 			resc = value;
-			resi = static_cast<int>(value);
-			resf = static_cast<float>(value);
-			resd = static_cast<double>(value);
+			resi = std::stoi(value);
+			resf = static_cast<float>(resi);
+			resd = static_cast<double>(resi);
 		}
 	}
 	if (type == INT || type == DOUBLE || type == FLOAT)
 	{
-		int chartype = NumToChar(resi);
+		valueType	chartype = NumToChar(resi);
 		if (chartype == ERROR)
 			errflag = ERROR;
 		else if (chartype == IMPOSSIBLE)
@@ -80,6 +81,30 @@ static void	ScalarConverter::convert(std::string value)
 			resc = static_cast<std::string>(resi);
 		}
 	}
+	else if (type == NEGINF || type == NEGINFF)
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: -inff" << std::endl;
+		std::cout << "double: -inf" << std::endl;
+		return ;
+	}
+	else if (type == POSINF || type == POSINFF)
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: +inff" << std::endl;
+		std::cout << "double: +inf" << std::endl;
+		return ;
+	}
+	else if (type == NAN || type == NANF)
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: nanf" << std::endl;
+		std::cout << "double: nan" << std::endl;
+		return ;
+	}//needs fixing
 	if (errflag == ERROR)
 	{
 		resc = "Non displayable";
@@ -88,13 +113,13 @@ static void	ScalarConverter::convert(std::string value)
 	{
 		resc = "Impossible";
 	}
-	std::cout << "char: " << resc << std::endl;
+	std::cout << "char: '" << resc << "'" << std::endl;
 	std::cout << "int: " << resi << std::endl;
 	std::cout << "float: " << resf << std::endl;
 	std::cout << "double: " << resd << std::endl;
 }
 
-int		NumToChar(int num)
+valueType		NumToChar(int num)
 {
 	if (num <= 47 || num == 127)
 		return (ERROR);
@@ -122,11 +147,13 @@ bool	My_IsChar(std::string s)
 	return (true);
 }
 
-int	My_IsNum(std::string s)
+valueType	My_IsNum(std::string s)
 {
 	int	dotflag = 0;
 	for (int i = 0; s[i] != '\0'; i++)
 	{
+		if (i == 0 && (s[i] == '+' || s[i]  == '-'))
+			continue;
 		if (s[i] >= 48 && s[i] <= 57)
 		{
 			int	iflag = 1;
@@ -139,14 +166,22 @@ int	My_IsNum(std::string s)
 		{
 			int	fflag = 1;
 		}
+		else if (s == "-inff")
+			return (NEGINFF);
+		else if (s == "+inff")
+			return (POSINFF);
+		else if (s == "nanf")
+			return (NANF);
+		else if (s == "-inf")
+			return (NEGINF);
+		else if (s == "+inf")
+			return (POSINF);
+		else if (s == "nan")
+			return (NAN);
 		else
-		{
-			int noflag = 1;
-		}
+			return (ERROR);
 	}
-	if (noflag)
-		return (ERROR);
-	else if (iflag && dotflag == 1 && !fflag)
+	if (iflag && dotflag == 1 && !fflag)
 		return (DOUBLE);
 	else if (iflag && dotflag == 0 && !fflag)
 		return  (INT);
