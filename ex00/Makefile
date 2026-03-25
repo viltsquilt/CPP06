@@ -1,7 +1,7 @@
 NAME = convert
 CXX = c++
 CFLAGS = -std=c++20 -Wall -Wextra -Werror
-SRCS = main.cpp
+SRCS = main.cpp ScalarConverter.cpp
 
 O_DIR = objects
 

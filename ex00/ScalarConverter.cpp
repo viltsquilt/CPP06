@@ -5,7 +5,7 @@ ScalarConverter::ScalarConverter()
 
 }
 
-ScalarConverter(const ScalarConverter& orig)
+ScalarConverter::ScalarConverter(const ScalarConverter& orig)
 {
 	(void)orig;
 }
@@ -21,7 +21,7 @@ ScalarConverter::~ScalarConverter()
 
 }
 
-static void	ScalarConverter::convert(std::string value)
+void	ScalarConverter::convert(std::string value)
 {
 	std::string	resc;
 	int			resi;
@@ -30,33 +30,54 @@ static void	ScalarConverter::convert(std::string value)
 	valueType	errflag;
 	valueType	flag;
 
-	if (value.len() >= 1)
+	if (value.length() >= 1)
 	{
 		errflag = IMPOSSIBLE;
-		valueType	type = My_IsNum(value);
-		if (type == INT)
+		flag = My_IsNum(value);
+		if (flag == INT)
 		{
-			flag = INT;
 			resi = std::stoi(value);
 			resf = static_cast<float>(resi);
 			resd = static_cast<double>(resi);
 		}
-		else if (type == DOUBLE)
+		else if (flag == DOUBLE)
 		{
-			flag = DOUBLE;
 			resd = std::stod(value);
 			resi = static_cast<int>(resd);
 			resf = static_cast<float>(resd);
 		}
-		else if (type == FLOAT)
+		else if (flag == FLOAT)
 		{
-			flag = FLOAT;
 			resf = std::stod(value);
 			resi = static_cast<int>(resf);
 			resd = static_cast<double>(resf);
 		}
+		else if (flag == NEGINF || flag == NEGINFF)
+		{
+			std::cout << "char: Impossible" << std::endl;
+			std::cout << "int: Impossible" << std::endl;
+			std::cout << "float: -inff" << std::endl;
+			std::cout << "double: -inf" << std::endl;
+			return ;
+		}
+		else if (flag == POSINF || flag == POSINFF)
+		{
+			std::cout << "char: Impossible" << std::endl;
+			std::cout << "int: Impossible" << std::endl;
+			std::cout << "float: +inff" << std::endl;
+			std::cout << "double: +inf" << std::endl;
+			return ;
+		}
+		else if (flag == NAN || flag == NANF)
+		{
+			std::cout << "char: Impossible" << std::endl;
+			std::cout << "int: Impossible" << std::endl;
+			std::cout << "float: nanf" << std::endl;
+			std::cout << "double: nan" << std::endl;
+			return ;
+		}
 	}
-	else if (value.len() == 1)
+	else
 	{
 		if (My_IsChar(value))
 		{
@@ -67,8 +88,13 @@ static void	ScalarConverter::convert(std::string value)
 			resf = static_cast<float>(resi);
 			resd = static_cast<double>(resi);
 		}
+		else
+		{
+			flag = INT;
+			errflag = ERROR;
+		}
 	}
-	if (type == INT || type == DOUBLE || type == FLOAT)
+	if (flag == INT || flag == DOUBLE || flag == FLOAT)
 	{
 		valueType	chartype = NumToChar(resi);
 		if (chartype == ERROR)
@@ -78,33 +104,9 @@ static void	ScalarConverter::convert(std::string value)
 		else
 		{
 			errflag = OK;
-			resc = static_cast<std::string>(resi);
+			resc = std::to_string(resi);
 		}
 	}
-	else if (type == NEGINF || type == NEGINFF)
-	{
-		std::cout << "char: Impossible" << std::endl;
-		std::cout << "int: Impossible" << std::endl;
-		std::cout << "float: -inff" << std::endl;
-		std::cout << "double: -inf" << std::endl;
-		return ;
-	}
-	else if (type == POSINF || type == POSINFF)
-	{
-		std::cout << "char: Impossible" << std::endl;
-		std::cout << "int: Impossible" << std::endl;
-		std::cout << "float: +inff" << std::endl;
-		std::cout << "double: +inf" << std::endl;
-		return ;
-	}
-	else if (type == NAN || type == NANF)
-	{
-		std::cout << "char: Impossible" << std::endl;
-		std::cout << "int: Impossible" << std::endl;
-		std::cout << "float: nanf" << std::endl;
-		std::cout << "double: nan" << std::endl;
-		return ;
-	}//needs fixing
 	if (errflag == ERROR)
 	{
 		resc = "Non displayable";
@@ -113,13 +115,16 @@ static void	ScalarConverter::convert(std::string value)
 	{
 		resc = "Impossible";
 	}
-	std::cout << "char: '" << resc << "'" << std::endl;
-	std::cout << "int: " << resi << std::endl;
-	std::cout << "float: " << resf << std::endl;
-	std::cout << "double: " << resd << std::endl;
+	else
+	{
+		std::cout << "char: '" << resc << "'" << std::endl;
+		std::cout << "int: " << resi << std::endl;
+		std::cout << "float: " << resf << std::endl;
+		std::cout << "double: " << resd << std::endl;
+	}
 }
 
-valueType		NumToChar(int num)
+ScalarConverter::valueType		ScalarConverter::NumToChar(int num)
 {
 	if (num <= 47 || num == 127)
 		return (ERROR);
@@ -129,42 +134,45 @@ valueType		NumToChar(int num)
 		return (OK);
 }
 
-bool	My_IsChar(std::string s)
+bool	ScalarConverter::My_IsChar(std::string s)
 {
+	int	noflag = 0;
 	for (int i = 0; s[i] != '\0'; i++)
 	{
-		if ((s[i] >= 21 && s[i] <= 47) || (s[i] >= 58 && s <= 126))
-		{
-			int	cflag = 1;
-		}
+		if ((s[i] >= 21 && s[i] <= 47) || (s[i] >= 58 && s[i] <= 126))
+			continue;
 		else
 		{
-			int	noflag = 1;
+			noflag = 1;
 		}
 	}
-	if (noflag)
+	if (noflag == 1)
 		return(false);
 	return (true);
 }
 
-valueType	My_IsNum(std::string s)
+ScalarConverter::valueType	ScalarConverter::My_IsNum(std::string s)
 {
+	int	iflag = 0;
+	int	fflag = 0;
 	int	dotflag = 0;
+	long long num = 0;
+
 	for (int i = 0; s[i] != '\0'; i++)
 	{
 		if (i == 0 && (s[i] == '+' || s[i]  == '-'))
 			continue;
 		if (s[i] >= 48 && s[i] <= 57)
 		{
-			int	iflag = 1;
+			iflag = 1;
 		}
 		else if (s[i] == '.')
 		{
 			dotflag++;
 		}
-		else if (s[s.len() - 1] == 'f')
+		else if (s[s.length() - 1] == 'f')
 		{
-			int	fflag = 1;
+			fflag = 1;
 		}
 		else if (s == "-inff")
 			return (NEGINFF);
@@ -181,11 +189,18 @@ valueType	My_IsNum(std::string s)
 		else
 			return (ERROR);
 	}
-	if (iflag && dotflag == 1 && !fflag)
+	num = std::stoll(s);
+	if (num > std::numeric_limits<int>::max() || num < std::numeric_limits<int>::min())
+		return (INT_MAXMIN);	
+	if (num > std::numeric_limits<float>::max() || num < std::numeric_limits<float>::min())
+		return (FLOAT_MAXMIN);
+	if (num > std::numeric_limits<double>::max() || num < std::numeric_limits<double>::min())
+		return (DOUBLE_MAXMIN);
+	if (iflag == 1 && dotflag == 1 && fflag == 0)
 		return (DOUBLE);
-	else if (iflag && dotflag == 0 && !fflag)
+	else if (iflag == 1 && dotflag == 0 && fflag == 0)
 		return  (INT);
-	else if (iflag && dotflag == 1 && fflag)
+	else if (iflag == 1 && dotflag == 1 && fflag == 1)
 		return (FLOAT);
 	else
 		return (ERROR);
