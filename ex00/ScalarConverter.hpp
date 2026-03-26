@@ -3,6 +3,9 @@
 #include <iostream>
 #include <limits>
 #include <cctype>
+#include <string>
+#include <cmath>
+#include <regex>
 
 class ScalarConverter
 {
@@ -15,24 +18,19 @@ class ScalarConverter
 				FLOAT,
 				NEGINFF,
 				POSINFF,
-				NANF,
+				NNANF,
 				NEGINF,
 				POSINF,
-				NAN,
+				NNAN,
 				ERROR,
-				IMPOSSIBLE,
-				OK,
-				INT_MAXMIN,
-				FLOAT_MAXMIN,
-				DOUBLE_MAXMIN,
 			};
 			ScalarConverter();
 			ScalarConverter(const ScalarConverter& orig);
 			ScalarConverter&	operator=(const ScalarConverter& orig);
 			~ScalarConverter();
-			static bool		My_IsChar(std::string s);
-			static valueType	My_IsNum(std::string s);
-			static valueType	NumToChar(int num);
+			static valueType	matchType(const std::string &literal);
+			static bool			checkLimits(double value);
+			static bool			printTypes(const std::string &literal, valueType type);
 	public:
-			static void	convert(std::string value);
+			static void	convert(const std::string &literal);
 };
