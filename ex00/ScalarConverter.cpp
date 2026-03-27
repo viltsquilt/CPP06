@@ -60,7 +60,7 @@ bool	ScalarConverter::printTypes(const std::string &literal, valueType type)
 		}
 		if ((value >= 0 && value <= 32) || (value >= 48 && value <= 57) || (value >= 127 && value < 255))
 			std::cout << "char: non displayable\n";
-		if (value >= 255)
+		if (value >= 255 || value < 0)
 			std::cout << "char: impossible\n";
 		if ((value >= 33 && value <= 47) || (value >= 58 && value <= 126))
 			std::cout << "char: '" << static_cast<char>(value) << "'\n";
@@ -100,7 +100,7 @@ bool ScalarConverter::checkLimits(double value)
 {
 	double	rounded = std::round(value);
 
-	if (value > std::numeric_limits<float>::max() || value < std::numeric_limits<float>::min())
+	if (value > std::numeric_limits<float>::max() || value < std::numeric_limits<float>::lowest())
 	{
 		std::cout << "int: impossible\n";
 		std::cout << "float: impossible\n";
@@ -110,7 +110,7 @@ bool ScalarConverter::checkLimits(double value)
 			std::cout << "double: " << value << "\n";
 		return (true);
 	}
-	else if (value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::min())
+	else if (value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::lowest())
 	{
 		std::cout << "int: impossible\n";
 		if (rounded == value)
@@ -125,7 +125,7 @@ bool ScalarConverter::checkLimits(double value)
 		}
 		return (true);
 	}
-	else if (value <= std::numeric_limits<int>::max() || value >= std::numeric_limits<int>::min())
+	else if (value <= std::numeric_limits<int>::max() && value >= std::numeric_limits<int>::lowest())
 	{
 		std::cout << "int: " << static_cast<int>(value) << "\n";
 		if (rounded == value)
