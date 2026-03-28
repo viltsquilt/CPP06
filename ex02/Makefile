@@ -1,7 +1,7 @@
 NAME = identify
 CXX = c++
 CFLAGS = -std=c++20 -Wall -Wextra -Werror
-SRCS = main.cpp Serializer.cpp
+SRCS = main.cpp Base.cpp
 
 O_DIR = objects
 
