@@ -58,11 +58,11 @@ bool	ScalarConverter::printTypes(const std::string &literal, valueType type)
 		{
 			return (false);
 		}
-		if ((value >= 0 && value <= 32) || (value >= 48 && value <= 57) || (value >= 127 && value < 255))
+		if ((value >= 0 && value <= 32) || (value >= 127 && value < 255))
 			std::cout << "char: non displayable\n";
 		if (value >= 255 || value < 0)
 			std::cout << "char: impossible\n";
-		if ((value >= 33 && value <= 47) || (value >= 58 && value <= 126))
+		if (value >= 33 && value <= 126)
 			std::cout << "char: '" << static_cast<char>(value) << "'\n";
 		if (checkLimits(value))
 			return (true);
@@ -147,7 +147,7 @@ bool ScalarConverter::checkLimits(double value)
 ScalarConverter::valueType	ScalarConverter::matchType(const std::string &literal)
 {
 	const std::regex	reInt("(^\\+|-)?\\d+$");
-	const std::regex	reFloat("^(\\+|-)?(\\d+\\.\\d+|\\.\\d+|\\d+\\.)\\f$");
+	const std::regex	reFloat("^(\\+|-)?(\\d+f$|\\d+\\.\\d+f$|\\.\\d+f$|\\d+\\.f$)");
 	const std::regex	reDouble("^(\\+|-)?(\\d+\\.\\d+$|\\.\\d+$|\\d+\\.$)");
 	const std::regex	reChar("^.$");
 	const std::regex	rePosInff("^\\+inff$");
