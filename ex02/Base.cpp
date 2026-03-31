@@ -29,6 +29,8 @@ void	identify(Base *p)
 		std::cout << "Type B" << std::endl;
 	if (dynamic_cast<C*>(p))
 		std::cout << "Type C" << std::endl;
+	if (p == NULL)
+		std::cout << "I ain't got no type." << std::endl;
 }
 
 void	identify(Base& p)
